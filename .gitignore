@@ -2,7 +2,8 @@
 *
 # except these specifics
 !README.md
-
+!.gitignore
+!simulator.py
 
 
 # below this is the python template from github
