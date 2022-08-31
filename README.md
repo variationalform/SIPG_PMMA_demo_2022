@@ -91,11 +91,20 @@ docker run -ti --name SIPG_PMMA_demo_2022 -v "$PWD":/home/fenics/shared \
 # we'll need 'screen'
 sudo apt-get update
 sudo apt-get install screen
-screen
+screen -S <name>
 # this failed with the following message:
 # Cannot open your terminal '/dev/pts/0' - please check.
 # solve it with this:
 sudo chmod o+rw /dev/pts/0
+
+# screen helpers:
+screen -ls && screen -r <name>
+#toggle previous two C-A C-A; next terminal C-AN; switch to shell n C-A n
+#C-a (shift to u/c) A <term_name>
+#C-AD to detach and exit
+#screen -d -r (detaches and reattaches when necessary)
+#CA ? gives a list of commands
+
 
 # to determine the FENICS version:
 python
