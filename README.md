@@ -25,6 +25,15 @@ cd ~/to/parent/directory
 git clone git@github.com:variationalform/SIPG_PMMA_demo_2022.git
 ```
 This will get you the basic codes needed to run the simulation. If you want to get up and running more quickly then the `docker` version described below will suit your needs better.
+
+The basic commands are something like this:
+
+```bash
+cd ./runtime/le && ./longrun_le.sh | tee ./longrun_le_out.txt
+cd ./runtime/ve && ./longrun_ve.sh | tee ./longrun_ve_out.txt
+```
+These will change to a working directory for linear elasticity or viscoelasticity (`le` or `ve`) and then execute the `bash` scripts. The output is `tee`'d off to `stdout` as well as the `*.txt` text files. This could take many days to run - edit the `bash` scripts to just get the coarser results if you want output more quickly.
+
  
 Git: general usage (some memory joggers)
 
@@ -54,7 +63,7 @@ cp -r ../shared/runtime/ .
 screen -S <name>
 # can re-attach with screen -d -r <name> (-d if not cleanly detached)
 # run bash in several screens sessions, and then in each of two sessions
-cd ~/local/runtime/ve ; ./longrun_le.sh | tee ./longrun_le_out.txt
+cd ~/local/runtime/le ; ./longrun_le.sh | tee ./longrun_le_out.txt
 cd ~/local/runtime/ve ; ./longrun_ve.sh | tee ./longrun_ve_out.txt
 ```
 

@@ -4,6 +4,8 @@
 !README.md
 !.gitignore
 !simulator.py
+!longrun_le.sh
+!longrun_ve.sh
 
 
 # below this is the python template from github
