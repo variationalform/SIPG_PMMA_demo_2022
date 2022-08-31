@@ -1,3 +1,11 @@
+# ignore everything
+*
+# except these specifics
+!README.md
+
+
+
+# below this is the python template from github
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
