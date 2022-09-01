@@ -311,12 +311,6 @@ plt.draw()
 plt.savefig('./output/umidplotx.png', bbox_inches='tight', dpi=600)
 plt.savefig('./output/umidplotx.eps', bbox_inches='tight')
 # save umid for offline plotting (with e.g. LaTeX labels)
-#BASE_PATH = "/path/to/base"
-
-#for i in xrange(100):
-    #x = np.random.normal(0.0, 1.0, 100) #make the array to save
-    #file_name = "{0}.npz".format(i)
-    #np.savez( os.path.join(BASE_PATH, file_name), x )
 np.savez('./output/umidsaved.npz', umid=umid)
 #plt.show(); plt.pause(1); plt.close('all')
 end = time()
