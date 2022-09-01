@@ -1,10 +1,6 @@
 #!/usr/bin/python
 # the crash-bang line above changes with the conda environment. Best to run with 'python ...'
 
-# to do
-#  - add runmeshio, remove test3
-#   git; alter output dir from 'test3' to 'output'
-
 # mac
 #(pde20191119) ... $ rm -rf output && /anaconda3/envs/pde20191119/bin/python simulator.py 
 # Desktop

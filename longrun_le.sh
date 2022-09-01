@@ -5,9 +5,9 @@ rm -rf output
 rm -rf output_le_?
 rm -rf output_ve_?
 
-RUNPATH='/anaconda3/envs/pde20191119/bin/'                    # mac
+#RUNPATH='/anaconda3/envs/pde20191119/bin/'                    # mac
 #RUNPATH='/home/icsrsss/anaconda3/envs/blockdata/bin/'         # server (11,12)
-#RUNPATH='/usr/bin/'                                            # docker
+RUNPATH='/usr/bin/'                                            # docker
 
 date
 echo -e  '20\n 10\n   4000\n 0' | $RUNPATH/python simulator.py
