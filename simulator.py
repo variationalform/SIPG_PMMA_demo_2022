@@ -269,7 +269,9 @@ for n in range(0, Nt):
       u1,_=uh.split()
       now = time()
       print('{0:13.6e}  {1:3d}%  {2:13.6e}  {3:13.6e}  {4:13.6e}  Dt={5:13.6e} s'.format(
-              tnp1, int(round(100*tnp1/T)), norm(u1, 'L2'), u1(0,0.5), u1(2,0.5), now-then ), flush=True)
+              tnp1, int(round(100*tnp1/T)), norm(u1, 'L2'), u1(0,0.5), u1(2,0.5), now-then ))
+#              tnp1, int(round(100*tnp1/T)), norm(u1, 'L2'), u1(0,0.5), u1(2,0.5), now-then ), flush=True)
+      sys.stdout.flush()
       then = now
       plot(u1)
       gfxstr = 'u1_'
