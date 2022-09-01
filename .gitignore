@@ -6,7 +6,7 @@
 !simulator.py
 !longrun_le.sh
 !longrun_ve.sh
-
+!runmeshio.py
 
 # below this is the python template from github
 # Byte-compiled / optimized / DLL files
