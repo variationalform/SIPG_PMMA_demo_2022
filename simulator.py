@@ -1,35 +1,18 @@
-#!/anaconda3/envs/fenicsproject/bin/python
-
+#!/usr/bin/python
 # the crash-bang line above changes with the conda environment. Best to run with 'python ...'
 
 # to do
-#  - tidy these comments just below
-#  - alter the 'test3' directory to 'output' - grep this, and in all the longrun scripts
 #  - add runmeshio, remove test3
-#  - add a LaTeX note, tidy the rest of the code comments and cruft
-#  - 
-#  - 
-#  - 
-#  - 
+#   git; alter output dir from 'test3' to 'output'
 
 # mac
-#(pde20191119) ... $ rm -rf test3 && /anaconda3/envs/pde20191119/bin/python simulator.py 
-
+#(pde20191119) ... $ rm -rf output && /anaconda3/envs/pde20191119/bin/python simulator.py 
 # Desktop
 #conda activate fenicsproject
-#(fenicsproject) ... ... $ rm -rf test3 && /home/icsf/icsrsss/anaconda3/envs/fenicsproject/bin/python simulator.py 
-
+#(fenicsproject) ... ... $ rm -rf output && /home/icsf/icsrsss/anaconda3/envs/fenicsproject/bin/python simulator.py 
 # server (11,12,docker) - no X server, matplotlib fails.
 #conda activate blockdata
-#rm -rf test3 && /home/icsrsss/anaconda3/envs/blockdata/bin/python simulator.py
-# screen -S simulate
-#screen (-ls, -r xxx_)
-#toggle previous two C-A C-A; next terminal C-AN; switch to shell n C-A n
-#C-a (shift to u/c) A <term_name>
-#C-AD to detach and exit
-#screen -d -r (detaches and reattaches when necessary)
-#CA ? gives a list of commands
-
+#rm -rf output && /home/icsrsss/anaconda3/envs/blockdata/bin/python simulator.py
 
 from __future__ import print_function
 from dolfin import *
@@ -39,14 +22,10 @@ import getopt, sys
 import matplotlib.pyplot as plt
 from time import time, ctime
 
-
-# from mshr import *
-
-
 parameters['form_compiler']['cpp_optimize'] = True
 parameters['form_compiler']['optimize'] = True
 parameters["ghost_mode"] = "shared_facet"
-# SS set_log_active(False)
+# set_log_active(False)
 
 start = time()
 PI=np.pi
@@ -70,14 +49,15 @@ else:
 freq = 10 #1000    # sine frequency in traction g1
 Tp = 1.0/freq  # periodic time
 
-Nx = 20 #80 #40 #20       # subdivisions
-Ny = 10 #40 #20 #10
-Nt = 40000 #4800 #2400 #1200      # the number of time steps
-vwan = 8000 #960 #480 #240       # variable without a name  
+Nx = 20            # subdivisions in x direction
+Ny = 10            # subdivisions in y direction
+Nt = 40000         # the number of time steps
+vwan = 8000        # variable without a name - controld output frequency  
 gfx_count = 0
-dt = T/Nt      # time step
+dt = T/Nt          # time step
 viscoelastic = True
 
+# interactive - ask for mesh dims and timesteps
 print('enter Nx, Ny, Nt, and viscoelastic true/false - 1/0 - flag')
 Nx = int(input())
 Ny = int(input())
@@ -93,7 +73,7 @@ else:
 
 print('Inputs: Nx = ', Nx,', Ny = ', Ny,', Nt = ', Nt, 'vwan = ',  vwan)
 
-# problem data following PMMA
+# problem data for PMMA
 Nphi=11 # the number of internal variables
 if viscoelastic:
   print('Using viscoelasticity for PMMA')
@@ -114,13 +94,11 @@ else:
   varphi = np.zeros([12])
   varphi[0] = 1.0
   
-nu=Constant(0.35)     # Poisson's ratio
-#E=2.23947   # stiffness modulus
-E=Constant(2.23947)   # stiffness modulus, scaled by 1e9
+nu=Constant(0.35)               # Poisson's ratio
+E=Constant(2.23947)             # stiffness modulus, scaled by 1e9
 Lame1=nu*E/((1+nu)*(1-2*nu))    # first Lame parameter
-Lame2=0.5*E/(1+nu)  # second Lame parameter
-#rho=1190 # density
-rho=Constant(1190.0e-9) # density, scaled by 1e9
+Lame2=0.5*E/(1+nu)              # second Lame parameter
+rho=Constant(1190.0e-9)         # density, scaled by 1e9
 lmbda=float(Lame1)
 mu = float(Lame2)
 # calculate some possible overrides given the frequency and modulus
@@ -133,7 +111,6 @@ print('Cd = ', Cd, ',  \t Cs = ', Cs)
 print('wavelengths for freq =  ', freq, ': ', Cd/freq, ' and ', Cs/freq)
 print('0.1m travel times: ', 0.1/Cd, ' and ', 0.1/Cs)
 print('Distance travelled in one time step: ', Cd*dt,' and ', Cs*dt,'\n')
-
 # suppose we want solres intervals per sine wave, with each sine wave having
 # periodic time 1/(freq*(1-x[1])). We will need to consider the max frequency
 # which is when y=x[1]=0. Hence the effective periodic time is 1/freq and in
@@ -147,7 +124,7 @@ altering = input('Use these? Y/N    ')
 if altering == 'Y' or altering == 'y':
   print('altering...')
   Nt = int(solres*T/freq);
-  minres = 1;
+  minres = 1; # unclear what we wanted to achieve here...
 '''
 
 tau=np.zeros(Nphi+1) # for the sake of convenient indexing, we additionally put tau0=0
@@ -155,20 +132,18 @@ for i in range(0,Nphi):
     tau[i+1]=2.0*pow(10,(i-2))
 
 # Define penalty parameters
-alpha = 10.0 #10.0
-beta =  1.0 #1.0
+alpha = 10.0
+beta =  1.0
 
 ux = Expression(("0.0","0.0"), tn=0, degree=5)
 
 mesh = RectangleMesh(Point(0.0, 0.0), Point(2.0, 1.0), Nx, Ny,"left")
-# plot(mesh)
-# plt.show()
+# plot(mesh); plt.show()
 
 V = VectorFunctionSpace(mesh, 'DG', 2)
 dof=V.dim()
 
 # define the boundary partition
-# SS boundary_parts =FacetFunction("size_t", mesh, 0)
 boundary_parts =MeshFunction("size_t", mesh, mesh.topology().dim()-1, 0)
 
 # nonzero traction Neumann bc
@@ -181,18 +156,14 @@ Gamma_Neumann.mark(boundary_parts, 1)
 # homogeneous Dirichlet bc 
 class GammaDirichlet(SubDomain):
     def inside(self, x, on_boundary):
-#       Gd = near(x[1],0.0,tol) or near(x[1],1.0,tol)
        Gd = near(x[0],0.0,tol)
        return on_boundary and Gd
 Gamma_Dirichlet = GammaDirichlet()
 Gamma_Dirichlet.mark(boundary_parts, 2)
 
-
- 
 ds = ds(subdomain_data = boundary_parts)
 dx=Measure('dx')
 n = FacetNormal(mesh)
-# SS h = CellSize(mesh)
 h = CellDiameter(mesh)
 h_avg = (h('+') + h('-'))/2
 
@@ -208,7 +179,6 @@ def sigma(v):
 u0 = interpolate(ux, V)
 w0 = interpolate(ux, V)
 
-# g=Expression(("0.0","amp*sin(2*pi*tn)+amp*sin(2*pi*(tn+dt))"),amp=amp,dt=dt,tn=0,degree=5,pi=PI)
 if traction_choice == 0:
   g=Expression(( "0.5*amp*( tn    < 2*0.5/(freq*(1-0.75*x[1])) )*pow(sin(2*freq*pi*(1-0.75*x[1])*  tn   ), 2)       \
                +0.5*amp*( tn+dt < 2*0.5/(freq*(1-0.75*x[1])) )*pow(sin(2*freq*pi*(1-0.75*x[1])*(tn+dt)), 2)", "0"),
@@ -233,37 +203,12 @@ elif traction_choice == 3:
                                                        ", "0"),
                   amp=amp,dt=dt,tn=0,degree=5,pi=PI,freq=freq)
 else:
-  #  Heaviside switches off at 1/freq = Tp (periodic time)
-  #g=Expression(( "0.5*amp*x[1]*(1.0-x[1])*( tn  < 0.5/freq )*pow(sin(2*freq*pi*tn   ), 2)       \
-               #+0.5*amp*x[1]*(1.0-x[1])*( tn+dt < 0.5/freq )*pow(sin(2*freq*pi*(tn+dt)), 2)", "0"),
-               #amp=amp,dt=dt,tn=0,degree=5,pi=PI,freq=freq)
-               
-               
-#  g=Expression(( "0.5*amp*( tn  < 0.5/freq )*pow(sin(2*freq*pi*tn   ), 2)       \
-#                 +0.5*amp*( tn+dt < 0.5/freq )*pow(sin(2*freq*pi*(tn+dt)), 2)", "0"),
-#               amp=amp,dt=dt,tn=0,degree=5,pi=PI,freq=freq)
-
 #  EX01
 #  g=Expression(( "0.5*amp+0.5*amp", "0"), amp=amp,dt=dt,tn=0,degree=5,pi=PI,freq=freq)
 #  EX02
   g=Expression(( "0.5*amp*( tn  < 0.01 )+0.5*amp*( tn+dt < 0.01 )", "0"),
                amp=amp,dt=dt,tn=0,degree=5,pi=PI,freq=freq)
 
-## NEEDS the tn+dt part!!
-#  g=Expression(( "amp*x[1]*(1.0-x[1])*pow(tn/Tp,2)*( tn  <= Tp )", "0"),
-#               amp=amp,dt=dt,tn=0,degree=5,pi=PI,freq=freq,Tp=Tp)
-  #g=Expression(( "amp*x[1]*(1.0-x[1])*( tn  < 0.5/freq )", "0"),
-               #amp=amp,dt=dt,tn=0,degree=5,pi=PI,freq=freq)
-# #g=Expression(( "0.5*amp*( tn    < 2*0.5/(freq*(10-9*x[1])) )*pow(sin(2*freq*pi*(10-9*x[1])*  tn   ), 2)       \
-#              #+0.5*amp*( tn+dt < 2*0.5/(freq*(10-9*x[1])) )*pow(sin(2*freq*pi*(10-9*x[1])*(tn+dt)), 2)", "0"),
-#              #amp=amp,dt=dt,tn=0,degree=5,pi=PI,freq=freq)
-  
-  
-# SS g=Expression(("amp*sin(freq*0.5*pi*x[1]*tn)+amp*sin(freq*0.5*pi*x[1]*(tn+dt))","0"),amp=amp,dt=dt,tn=0,degree=5,pi=PI,freq=freq)
-# g=Expression(("0.0","amp"),amp=amp,dt=dt,tn=0,degree=5,pi=PI)
-# g=Expression(("0.0","amp*exp(-10000000*tn)"),amp=amp,dt=dt,tn=0,degree=5)
-
-# f=Expression(("amp*exp(-10000000*tn*(x[1]-0.5)*(x[1]-0.5))","0.0"),amp=amp,dt=dt,tn=0,degree=5)
 uh = Function(V)   # the unknown at a new time level
 wh = Function(V)
 
@@ -280,7 +225,6 @@ jump_penalty =  alpha/(h_avg**beta)*dot(jump(u), jump(v))*dS  + alpha/(h**beta)*
         
 # linear form for the right hand side and internal variables
 L=dot(g,v)*ds(1)
-# L=dot(f,v)*dx
 # assemble the system matrix once and for all
 M = assemble(mass)
 A = assemble(stiffness)
@@ -293,64 +237,39 @@ CurlA=0.5*(A-coeff_internal*A)
 B=(2.0/dt/dt)*M+CurlA+(1.0/dt)*J
 
 # assemble only once, before the time stepping
-b = None 
-b2= None        
-b3= None  # YJ's suggested bug fix      
+b = None; b2= None; b3= None
 
 # record time and displacement at (x,y)=(2,0.5) - assume zero IC
 umid = np.zeros((2,Nt+1))
 
 Psi=np.zeros((dof,Nphi))
-#solver = LinearSolver('mumps')
-vtkfile = File('test3/solution.pvd')
+vtkfile = File('output/solution.pvd')
 then = time()
-#psiV = Function(V)
 for n in range(0, Nt):
     tn = n*dt;  g.tn = tn; 
-    # f.tn = tn; 
     b = assemble(L, tensor=b)
     b2=2.0/dt*M*w0.vector().get_local()+(2.0/dt/dt*M-CurlA+1.0/dt*J)*u0.vector().get_local()
-##    b2=2.0/dt*M*w0.vector().get_local()+(2.0/dt/dt*M-CurlA+1.0/dt*J)*u0.vector().get_local()
-##    b.add_local(b2)  # YJ's suggested bug fix
     for q in range(0,Nphi):
         b2+=A*2.0*tau[q+1]/(2.0*tau[q+1]+dt)*Psi[:,q]
-##        b3=2.0*tau[q+1]/(2.0*tau[q+1]+dt)*A*Psi[:,q]
-##        b.add_local(b3)         # YJ's suggested bug fix      
-            
     b.add_local(b2)
 
+#   lots of choice, crude tests suggest mumps is the fastest
 #    solve(B, uh.vector(), b,'minres')  #  solve(B, uh.vector(), b,'gmres')    #  solve(B, uh.vector(), b,'bicgstab')  
 #    solve(B, uh.vector(), b,'petsc')   #  solve(B, uh.vector(), b,'umfpack')  #  solve(B, uh.vector(), b,'lu')
-#    bc = DirichletBC(V, Constant((0.0,0.0)), GammaDirichlet() ); bc.apply(B, b)
-#    solve(A, x, b, "cg", "hypre_amg")
-#    bc = DirichletBC(V, Constant((0.0,0.0)), GammaDirichlet() )
-#    solve(B, uh.vector(), b, 'minres');
-#    solve(B, uh.vector(), b, 'umfpack');
-#    solve(B, uh.vector(), b, 'lu');
-#    solve(B, uh.vector(), b, 'petsc');
 #    solve(B, uh.vector(), b, 'cg', 'hypre_amg')
     solve(B, uh.vector(), b, 'mumps')
     wh.vector()[:]=2.0/dt*(uh.vector().get_local()-u0.vector().get_local())-w0.vector().get_local()
     for q in range(0,Nphi):
         Psi[:,q]=2.0*dt/(2*tau[q+1]+dt)*((2*tau[q+1]-dt)/2/dt*Psi[:,q]+varphi[q+1]/2.0*(uh.vector().get_local()+u0.vector().get_local()))            
-#        psiV = Function(V)
-#        psiV.vector()[:] = 2.0*dt/(2*tau[q+1]+dt)*((2*tau[q+1]-dt)/2/dt*Psi[:,q]+varphi[q+1]/2.0*(uh.vector().get_local()+u0.vector().get_local()))
-#        bc.apply(psiV.vector())
-#        Psi[:,q]=psiV.vector()[:]
-#
-# https://fenicsproject.discourse.group/t/index-of-inner-nodes-or-boundary-nodes/1524
-#        print( bc.get_boundary_values().keys() )
-        
-        
+
+    # throttle the amount of output - this is a bit buggy
     if (tn < T/100-dt and tn+dt >= T/100-dt) or (n+1) % vwan == 0 or n == Nt-1:
-#    if n == 0 or (n+1) % vwan == 0 or n == Nt-1:
-#    if (n-1) % vwan == 0 or n == Nt-1:
       tnp1 = tn+dt
       vtkfile << (uh, tnp1)
       u1,_=uh.split()
       now = time()
       print('{0:13.6e}  {1:3d}%  {2:13.6e}  {3:13.6e}  {4:13.6e}  Dt={5:13.6e} s'.format(
-              tnp1, int(round(100*tnp1/T)), norm(u1, 'L2'), u1(0,0.5), u1(2,0.5), now-then ))
+              tnp1, int(round(100*tnp1/T)), norm(u1, 'L2'), u1(0,0.5), u1(2,0.5), now-then ), flush=True)
       then = now
       plot(u1)
       gfxstr = 'u1_'
@@ -365,44 +284,41 @@ for n in range(0, Nt):
       else:
         gfxstr = gfxstr+str(gfx_count)
       gfx_count = 1+gfx_count
-      plt.savefig('./test3/'+gfxstr+'.png', bbox_inches='tight')
-      plt.savefig('./test3/'+gfxstr+'.eps', bbox_inches='tight')
-#      plt.draw()
-#      plt.pause(0.01)
+      plt.savefig('./output/'+gfxstr+'.png', bbox_inches='tight')
+      plt.savefig('./output/'+gfxstr+'.eps', bbox_inches='tight')
+#      plt.draw(); plt.pause(0.01)
     # capture midpoint displacement 
-    u1,_=uh.split()
-    umid[0,n+1] = tn+dt
-#    umid[1,n+1] = u1(0,0.5)
-    umid[1,n+1] = u1(2,0.5)
+    u1,_=uh.split(); umid[0,n+1] = tn+dt; umid[1,n+1] = u1(2,0.5)
 #   update old terms
     w0.assign(wh);u0.assign(uh);
-###u1,_=uh.split()
-###plot(u1)
-###plt.savefig('final_u1.png', bbox_inches='tight')
-###plt.savefig('final_u1.eps', bbox_inches='tight')
-##plt.draw()
-###input('Press any key to continue...')
-##plt.clf()
 
 plt.clf()
 plt.figure()
+# don't use TeX because the headless server wont have it installed
 #plt.rcParams['text.usetex'] = True
 plt.plot(umid[0,:], umid[1,:], linewidth=0.5, color='k')
 plt.grid(color='k', linestyle='-', linewidth=0.2)
 plt.xlabel('time, t (seconds)')
 #plt.xlabel('time, $t$ (seconds)')
-#plt.ylabel('displacement, $u_1(0,0.5)$ (metres)')
-#plt.ylabel('displacement, $u_1(2,0.5)$ (metres)')
 plt.ylabel('displacement, u_1(2,0.5) (metres)')
+#plt.ylabel('displacement, $u_1(2,0.5)$ (metres)')
 plt.ylim(-0.05, 0.1)
 plt.xlim(0,T)
 plt.draw()
-plt.savefig('./test3/umidplot.png', bbox_inches='tight', dpi=600)
-plt.savefig('./test3/umidplot.eps', bbox_inches='tight')
-#plt.show()
-#plt.pause(1)
-#plt.close('all')
+# suffix x to denote non-LaTeX plots
+#plt.savefig('./output/umidplot.png', bbox_inches='tight', dpi=600)
+#plt.savefig('./output/umidplot.eps', bbox_inches='tight')
+plt.savefig('./output/umidplotx.png', bbox_inches='tight', dpi=600)
+plt.savefig('./output/umidplotx.eps', bbox_inches='tight')
+# save umid for offline plotting (with e.g. LaTeX labels)
+#BASE_PATH = "/path/to/base"
+
+#for i in xrange(100):
+    #x = np.random.normal(0.0, 1.0, 100) #make the array to save
+    #file_name = "{0}.npz".format(i)
+    #np.savez( os.path.join(BASE_PATH, file_name), x )
+np.savez('./output/umidsaved.npz', umid=umid)
+#plt.show(); plt.pause(1); plt.close('all')
 end = time()
 print('Elapsed time: {0:13.6e}s  {1:13.6e}m  {2:13.6e}h'.format(
               end-start, (end-start)/60.0, (end-start)/3600.0))
-
