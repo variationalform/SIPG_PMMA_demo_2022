@@ -43,9 +43,9 @@ from xml.dom import minidom
 matplotlib.set_loglevel("error")  # to suppress PostScript transparency warnings
 
 # get grid size
-base_file_str = "../tmp/ve/output_ve_1/"
+base_file_str = "../CMAM_DG/runtime/le/output_le_6/"
 #base_file_str = "./output_ve_1/"
-Nx=20; Ny=10; # these must be known
+Nx=120; Ny=60; # these must be known
 # last_pic_num=99
 # Nx=128; Ny=64; last_pic_num=99 # these must be known
 
@@ -177,9 +177,9 @@ for pic in range(0,1+last_pic_num):
   clev[100:] += cont_gap
   ax.contour(X, Y, Z, clev, colors="k", linestyles="solid",offset=-base_dim)
 
-  plt.xlabel('x',fontsize=20)
-  plt.ylabel('y',fontsize=20)
-  plt.title('time: {0:8.6f}'.format(ti[pic]),fontsize=30)
+  plt.xlabel('$x$',fontsize=20)
+  plt.ylabel('$y$',fontsize=20)
+  plt.title('time: {0:8.6f} secs'.format(ti[pic]),fontsize=30)
   # Customize the z axis.
   ax.set_zlim(-base_dim, base_dim)
   #ax.zaxis.set_major_locator(LinearLocator(10))
