@@ -1,6 +1,13 @@
 #!/usr/bin/python
 # the crash-bang line above changes with the conda environment. Best to run with 'python ...'
 
+# Authors: Yongseok Jang and Simon Shaw, 16 September 2022.
+# Used for the paper: 
+# A Priori Analysis of a Symmetric Interior Penalty Discontinuous
+# Galerkin Finite Element Method for a Dynamic Linear Viscoelasticity Model
+# by Yongseok Jang and Simon Shaw
+# Submitted to: Computational Methods in Applied Mathematics 
+
 # mac
 #(pde20191119) ... $ rm -rf output && /anaconda3/envs/pde20191119/bin/python simulator.py 
 # Desktop

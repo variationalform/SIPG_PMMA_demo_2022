@@ -1,4 +1,12 @@
 #!/anaconda3/envs/meshioenv/bin/python
+
+# Author: Simon Shaw, 16 September 2022.
+# Used for the paper: 
+# A Priori Analysis of a Symmetric Interior Penalty Discontinuous
+# Galerkin Finite Element Method for a Dynamic Linear Viscoelasticity Model
+# by Yongseok Jang and Simon Shaw
+# Submitted to: Computational Methods in Applied Mathematics 
+  
 # required: conda activate meshioenv
 
 # you need to manually assign
